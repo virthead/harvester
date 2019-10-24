@@ -638,6 +638,9 @@ class Monitor(AgentBase):
                     if messenger.kill_requested(workSpec):
                         tmp_log.debug('kill workerID={0} as requested'.format(workerID))
                         self.dbProxy.kill_worker(workSpec.workerID)
+                        retMap[workerID]['newStatus'] = WorkSpec.ST_finished
+                        retMap[workerID]['diagMessage'] = diagMessage
+                        return True, retMap
                     # stuck queuing for too long
                     if workSpec.status == WorkSpec.ST_submitted \
                         and timeNow > workSpec.submitTime + datetime.timedelta(seconds=workerQueueTimeLimit):

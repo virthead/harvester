@@ -1872,7 +1872,7 @@ class DBProxy(object):
             tmpLog.debug('start')
             # sql to get worker IDs
             sqlW = "SELECT workerID FROM {0} ".format(workTableName)
-            sqlW += "WHERE lastUpdate IS NOT NULL AND lastUpdate<:checkTimeLimit "
+            sqlW += "WHERE status IS NOT 'finished' AND lastUpdate IS NOT NULL AND lastUpdate<:checkTimeLimit "
             sqlW += "ORDER BY lastUpdate "
             # sql to lock worker
             sqlL = "UPDATE {0} SET lastUpdate=:timeNow ".format(workTableName)

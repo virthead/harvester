@@ -1,15 +1,17 @@
-import radical.utils
+#import radical.utils
 import os
 import time
 from datetime import datetime
 
-import saga
+import radical.saga as rs
 
 from pandaharvester.harvestercore import core_utils
 from pandaharvester.harvestercore.plugin_base import PluginBase
 from pandaharvester.harvestercore.plugin_factory import PluginFactory
 from pandaharvester.harvestercore.queue_config_mapper import QueueConfigMapper
 from pandaharvester.harvestersubmitter.saga_submitter import SAGASubmitter
+from pandaharvester.harvestercore.db_proxy_pool import DBProxyPool as DBProxy
+from pandaharvester.harvesterconfig import harvester_config
 
 # logger
 baseLogger = core_utils.setup_logger('saga_monitor')
@@ -35,11 +37,11 @@ class SAGAMonitor(PluginBase):
         :rtype: (bool, [string,])
         """
         try:
-            job_service = saga.job.Service(self.adaptor)
-        except saga.SagaException as ex:
+            job_service = rs.job.Service(self.adaptor)
+        except rs.SagaException as ex:
             time.sleep(10)
             self.check_workers(workspec_list)
-        sagadateformat_str = '%a %b %d %H:%M:%S %Y'
+        
         retList = []
         for workSpec in workspec_list:
             # make logger
@@ -61,13 +63,13 @@ class SAGAMonitor(PluginBase):
                     workSpec.set_status(harvester_job_state)
                     if worker.created:
                         tmpLog.debug("Worker created (SAGA): {0}".format(worker.created))
-                        workSpec.submitTime = datetime.strptime(worker.created, sagadateformat_str)
+                        workSpec.submitTime = datetime.utcfromtimestamp(worker.created)
                     if worker.started:
                         tmpLog.debug("Worker started (SAGA): {0}".format(worker.started))
-                        workSpec.startTime = datetime.strptime(worker.started, sagadateformat_str)
+                        workSpec.startTime = datetime.utcfromtimestamp(worker.started)
                     if worker.finished:
                         tmpLog.debug("Worker finished (SAGA): {0}".format(worker.finished))
-                        workSpec.endTime = datetime.strptime(worker.finished, sagadateformat_str)
+                        workSpec.endTime = datetime.utcfromtimestamp(worker.finished)
 
                     if workSpec.is_final_status():
                         workSpec.nativeExitCode = worker.exit_code
@@ -83,11 +85,19 @@ class SAGAMonitor(PluginBase):
                             if endtime:
                                 workSpec.endTime = endtime
                             workSpec.set_status(harvester_job_state)
+                            
+                            jsonFilePath = os.path.join(workSpec.get_access_point(), harvester_config.payload_interaction.killWorkerFile)
+                            tmpLog.debug('Going to request kill worker via file {0}.'.format(jsonFilePath))
+                            try:
+                                os.utime(jsonFilePath, None)
+                            except OSError:
+                                open(jsonFilePath, 'a').close()
+                                
                         tmpLog.info('Worker {2} with BatchID={0} finished with exit code {1} and state {3}'.format(
                             workSpec.batchID, worker.exit_code, workSpec.workerID, worker.state))
                         tmpLog.debug('Started: [{0}] finished: [{1}]'.format(worker.started, worker.finished))
 
-                    if worker.state == saga.job.PENDING:
+                    if worker.state == rs.job.PENDING:
                         queue_time = (datetime.now() - workSpec.submitTime).total_seconds()
                         tmpLog.info("Worker queued for {0} sec.".format(queue_time))
                         if hasattr(self, 'maxqueuetime') and queue_time > self.maxqueuetime:
@@ -106,8 +116,39 @@ class SAGAMonitor(PluginBase):
                             tmpLog.info("Worker state: {0} worker exit code: {1}".format(harvester_job_state,
                                                                                          workSpec.nativeExitCode))
                             # proper processing of jobs for worker will be required, to avoid 'fake' fails
-
-                except saga.SagaException as ex:
+                    
+                    if worker.state == rs.job.RUNNING:
+                        tmpLog.info("Going to check that all jobs of the worker are in the final status.")
+                        dbProxy = DBProxy()
+                        job_spec_list = dbProxy.get_jobs_with_worker_id(workSpec.workerID, None, only_running=False, slim=False)
+                        
+                        allFinal = True
+                        for job_spec in job_spec_list:
+                            if not job_spec.is_final_status():
+                                allFinal = False
+                                tmpLog.info("Not all jobs are in the final status, skip till the next monitoring cycle.")
+                                break
+                        
+                        if allFinal:
+                            tmpLog.info("All jobs are in the final status, going to cancel the worker.")
+                            worker.cancel()
+                            worker.wait()
+                            workSpec.nativeExitCode = 0
+                            cur_time = datetime.utcnow()
+                            workSpec.endTime = cur_time
+                            jsonFilePath = os.path.join(workSpec.get_access_point(), harvester_config.payload_interaction.killWorkerFile)
+                            tmpLog.debug('Going to request kill worker via file {0}.'.format(jsonFilePath))
+                            try:
+                                os.utime(jsonFilePath, None)
+                            except OSError:
+                                open(jsonFilePath, 'a').close()
+                                
+                            workSpec.set_status(workSpec.ST_finished)
+                            harvester_job_state = workSpec.ST_finished
+                            tmpLog.info("Worker state: {0} worker exit code: {1}".format(harvester_job_state,
+                                                                                         workSpec.nativeExitCode))
+                        
+                except rs.SagaException as ex:
                     tmpLog.info('An exception occured during retriving worker information {0}'.format(workSpec.batchID))
                     tmpLog.info(ex.get_message())
                     # probably 'fnished' is not proper state in this case, 'undefined' looks a bit better

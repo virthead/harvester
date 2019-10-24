@@ -39,9 +39,11 @@ class NoVomsCredManager(PluginBase):
     def renew_credential(self):
         # make logger
         mainLog = self.make_logger(_logger, method_name='renew_credential')
-        comStr = "voms-proxy-init -rfc -noregen -voms {0} -out {1} -valid 96:00 -cert={2} -key={2}".format(self.voms,
+        comStr = "voms-proxy-init -rfc -noregen -voms {0} -out {1} -valid 96:00 -cert={2} -key={2} -certdir {3} -vomses {4}".format(self.voms,
                                                                                                            self.outCertFile,
-                                                                                                           self.inCertFile)
+                                                                                                           self.inCertFile,
+                                                                                                           self.certdir,
+                                                                                                           self.vomses)
         mainLog.debug(comStr)
         try:
             p = subprocess.Popen(comStr.split(),
