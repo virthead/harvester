@@ -38,7 +38,7 @@ class CredManager(AgentBase):
             vomses = self.get_list(harvester_config.credmanager.vomses)
         # get plugin
         self.exeCores = []
-        for moduleName, className, inCertFile, outCertFile, voms in \
+        for moduleName, className, inCertFile, outCertFile, voms, certdir, vomses in \
                 zip(moduleNames, classNames, inCertFiles, outCertFiles, voms, certdir, vomses):
             pluginPar = {}
             pluginPar['module'] = moduleName
