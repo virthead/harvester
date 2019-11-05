@@ -596,7 +596,7 @@ def main():
     if rank % 48 == 0:
         logger.info("Rank {0} is going to start MySQL db" . format(rank))
         logger.info("Preparing environment")
-        dbsetup_comm_arr = ['cp /work/projects/compass/sample_scripts/dbpcp/standalone-database.sh .',
+        dbsetup_comm_arr = ['cp /home1/06618/apetr/harvester/etc/standalone-database.sh .',
                             'sh standalone-database.sh &>dbsetup.log &'
                         ]
         dbsetup_comm = "\n" . join(dbsetup_comm_arr)
