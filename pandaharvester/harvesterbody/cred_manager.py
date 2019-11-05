@@ -31,23 +31,17 @@ class CredManager(AgentBase):
             # use the file name of the certificate for panda connection as output name
             outCertFiles = self.get_list(harvester_config.pandacon.cert_file)
         # VOMS
-        voms = self.get_list(harvester_config.credmanager.voms)
-        if hasattr(harvester_config.credmanager, 'certdir'):
-            certdir = self.get_list(harvester_config.credmanager.certdir)
-        if hasattr(harvester_config.credmanager, 'vomses'):
-            vomses = self.get_list(harvester_config.credmanager.vomses)
+        vomses = self.get_list(harvester_config.credmanager.voms)
         # get plugin
         self.exeCores = []
-        for moduleName, className, inCertFile, outCertFile, voms, certdir, vomses in \
-                zip(moduleNames, classNames, inCertFiles, outCertFiles, voms, certdir, vomses):
+        for moduleName, className, inCertFile, outCertFile, voms in \
+                zip(moduleNames, classNames, inCertFiles, outCertFiles, vomses):
             pluginPar = {}
             pluginPar['module'] = moduleName
             pluginPar['name'] = className
             pluginPar['inCertFile'] = inCertFile
             pluginPar['outCertFile'] = outCertFile
             pluginPar['voms'] = voms
-            pluginPar['certdir'] = certdir
-            pluginPar['vomses'] = vomses
             exeCore = self.pluginFactory.get_plugin(pluginPar)
             self.exeCores.append(exeCore)
 
