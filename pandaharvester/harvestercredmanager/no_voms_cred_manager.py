@@ -5,16 +5,24 @@ except Exception:
 
 from pandaharvester.harvestercore.plugin_base import PluginBase
 from pandaharvester.harvestercore import core_utils
+from pandaharvester.harvesterconfig import harvester_config
 
 # logger
 _logger = core_utils.setup_logger('no_voms_cred_manager')
-
 
 # credential manager with no-voms proxy
 class NoVomsCredManager(PluginBase):
     # constructor
     def __init__(self, **kwarg):
         PluginBase.__init__(self, **kwarg)
+        
+        self.certdir = None
+        if hasattr(harvester_config.credmanager, 'certdir'):
+            self.certdir = harvester_config.credmanager.certdir
+
+        self.vomses =  None
+        if hasattr(harvester_config.credmanager, 'vomses'):
+            self.vomses = harvester_config.credmanager.vomses
 
     # check proxy
     def check_credential(self):
@@ -39,11 +47,14 @@ class NoVomsCredManager(PluginBase):
     def renew_credential(self):
         # make logger
         mainLog = self.make_logger(_logger, method_name='renew_credential')
-        comStr = "voms-proxy-init -rfc -noregen -voms {0} -out {1} -valid 96:00 -cert={2} -key={2} -certdir {3} -vomses {4}".format(self.voms,
+        comStr = "voms-proxy-init -rfc -noregen -voms {0} -out {1} -valid 96:00 -cert={2} -key={2}".format(self.voms,
                                                                                                            self.outCertFile,
-                                                                                                           self.inCertFile,
-                                                                                                           self.certdir,
-                                                                                                           self.vomses)
+                                                                                                           self.inCertFile)
+        if self.certdir:
+            comStr += " -certdir {3}".format(self.certdir)
+        if self.vomses:
+            comStr += " -vomses {4}".format(self.vomses)
+        
         mainLog.debug(comStr)
         try:
             p = subprocess.Popen(comStr.split(),
