@@ -10,20 +10,20 @@ from pandaharvester.harvesterconfig import harvester_config
 # logger
 _logger = core_utils.setup_logger('no_voms_cred_manager')
 
+certdir = None
+if hasattr(harvester_config.credmanager, 'certdir'):
+    certdir = harvester_config.credmanager.certdir
+
+vomses =  None
+if hasattr(harvester_config.credmanager, 'vomses'):
+    vomses = harvester_config.credmanager.vomses
+
 # credential manager with no-voms proxy
 class NoVomsCredManager(PluginBase):
     # constructor
     def __init__(self, **kwarg):
         PluginBase.__init__(self, **kwarg)
-        
-        self.certdir = None
-        if hasattr(harvester_config.credmanager, 'certdir'):
-            self.certdir = harvester_config.credmanager.certdir
-
-        self.vomses =  None
-        if hasattr(harvester_config.credmanager, 'vomses'):
-            self.vomses = harvester_config.credmanager.vomses
-
+    
     # check proxy
     def check_credential(self):
         # make logger
@@ -50,10 +50,10 @@ class NoVomsCredManager(PluginBase):
         comStr = "voms-proxy-init -rfc -noregen -voms {0} -out {1} -valid 96:00 -cert={2} -key={2}".format(self.voms,
                                                                                                            self.outCertFile,
                                                                                                            self.inCertFile)
-        if self.certdir:
-            comStr += " -certdir {3}".format(self.certdir)
-        if self.vomses:
-            comStr += " -vomses {4}".format(self.vomses)
+        if certdir:
+            comStr += " -certdir {3}".format(certdir)
+        if vomses:
+            comStr += " -vomses {4}".format(vomses)
         
         mainLog.debug(comStr)
         try:
