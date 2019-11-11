@@ -51,9 +51,9 @@ class NoVomsCredManager(PluginBase):
                                                                                                            self.outCertFile,
                                                                                                            self.inCertFile)
         if certdir:
-            comStr += " -certdir {3}".format(certdir)
+            comStr += " -certdir {0}".format(certdir)
         if vomses:
-            comStr += " -vomses {4}".format(vomses)
+            comStr += " -vomses {0}".format(vomses)
         
         mainLog.debug(comStr)
         try:
