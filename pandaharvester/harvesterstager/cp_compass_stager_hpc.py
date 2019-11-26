@@ -249,7 +249,7 @@ class cpCompasStagerHPC(BaseStager):
 
     # zip output files
     def zip_output(self, jobspec):
-        tmpLog = self.make_logger(_logger, 'PandaID={0}'.format(jobspec.PandaID),
+        tmpLog = self.make_logger(baseLogger, 'PandaID={0}'.format(jobspec.PandaID),
                                   method_name='zip_output')
         return self.simple_zip_output(jobspec, tmpLog)
 
