@@ -246,15 +246,3 @@ class cpCompasStagerHPC(BaseStager):
         MCGENFILEOUT = d[d.find('=') + 1:]
         
         return sw_prefix, sw_path, prod_name, prodSlt, TMPMDSTFILE, TMPHISTFILE, EVTDUMPFILE, MERGEDMDSTFILE, MERGEDHISTFILE, MERGEDDUMPFILE, PRODSOFT, MCGENFILEOUT
-
-    # zip output files
-    def zip_output(self, jobspec):
-        return True
-
-    # asynchronous zip output
-    def async_zip_output(self, jobspec):
-        return True, ''
-
-    # post zipping
-    def post_zip_output(self, jobspec):
-        return True, ''
