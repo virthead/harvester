@@ -89,7 +89,7 @@ class cpCompasStagerHPC(BaseStager):
             
             if not ".log.tgz" in fileSpec.lfn:
                 tmpLog.debug('Getting sw path, name and hist filename from jobPars')
-                sw_prefix, sw_path, prod_name, prodSlt, TMPMDSTFILE, TMPHISTFILE, EVTDUMPFILE, MERGEDMDSTFILE, MERGEDHISTFILE, MERGEDDUMPFILE, PRODSOFT, MCGENFILEOUT = self.getSWPathAndNameAndFilename(jobSpec_full.jobParams['jobPars'])
+                sw_prefix, sw_path, prod_name, prodSlt, TMPMDSTFILE, TMPHISTFILE, EVTDUMPFILE, MERGEDMDSTFILE, MERGEDHISTFILE, MERGEDDUMPFILE, PRODSOFT, MCGENFILEOUT, TASK_TYPE = self.getSWPathAndNameAndFilename(jobSpec_full.jobParams['jobPars'])
                 
                 tmpLog.debug('sw_prefix: {0}' . format(sw_prefix))
                 tmpLog.debug('sw_path: {0}' . format(sw_path))
@@ -103,27 +103,40 @@ class cpCompasStagerHPC(BaseStager):
                 tmpLog.debug('MERGEDDUMPFILE: {0}' . format(MERGEDDUMPFILE))
                 tmpLog.debug('PRODSOFT: {0}' . format(PRODSOFT))
                 tmpLog.debug('MCGENFILEOUT: {0}' . format(MCGENFILEOUT))
-                           
+                
+                mc = ''
+                if job.script == 'MC reconstruction' or TASK_TYPE == 'MCRECO':
+                    mc = '/mc/'
+
                 # prod
                 if fileSpec.lfn == TMPMDSTFILE :
-                    se_path = sw_prefix + sw_path + prod_name + '/mDST.chunks'
+                    se_path = sw_prefix + mc + sw_path + prod_name + '/mDST.chunks'
                 if fileSpec.lfn == TMPHISTFILE:
-                    se_path = sw_prefix + sw_path + prod_name + '/TRAFDIC'
+                    se_path = sw_prefix + mc + sw_path + prod_name + '/TRAFDIC'
                 if fileSpec.lfn == "testevtdump.raw":
-                    se_path = sw_prefix + sw_path + prod_name + '/evtdump/slot' + prodSlt
+                    se_path = sw_prefix + mc + sw_path + prod_name + '/evtdump/slot' + prodSlt
                     filename = EVTDUMPFILE
-                if fileSpec.lfn == "payload_stdout.out.gz":
-                    se_path = sw_prefix + sw_path + PRODSOFT + '/logFiles'
-                    filename = prod_name + '.' + TMPHISTFILE.replace('.root', '.stdout.gz')
-                if fileSpec.lfn == "payload_stderr.out.gz":
-                    se_path = sw_prefix + sw_path + PRODSOFT + '/logFiles'
-                    filename = prod_name + '.' + TMPHISTFILE.replace('.root', '.stderr.gz')
+                
+                if job.script == 'MC generation':
+                    if filename == "payload_stdout.out.gz":
+                        se_path = sw_prefix + '/mc/' + sw_path + PRODSOFT + '/logFiles'
+                        filename = prod_name + '.' + MCGENFILEOUT.replace('.tgeant', '.stdout.gz')
+                    if filename == "payload_stderr.out.gz":
+                        se_path = sw_prefix + '/mc/' + sw_path + PRODSOFT + '/logFiles'
+                        filename = prod_name + '.' + MCGENFILEOUT.replace('.tgeant', '.stderr.gz')
+                else:
+                    if fileSpec.lfn == "payload_stdout.out.gz":
+                        se_path = sw_prefix + mc + sw_path + PRODSOFT + '/logFiles'
+                        filename = prod_name + '.' + TMPHISTFILE.replace('.root', '.stdout.gz')
+                    if fileSpec.lfn == "payload_stderr.out.gz":
+                        se_path = sw_prefix + mc + sw_path + PRODSOFT + '/logFiles'
+                        filename = prod_name + '.' + TMPHISTFILE.replace('.root', '.stderr.gz')
                                 
                 # merge
                 if fileSpec.lfn == MERGEDMDSTFILE :
-                    se_path = sw_prefix + sw_path + prod_name + '/mDST'
+                    se_path = sw_prefix + mc + sw_path + prod_name + '/mDST'
                 if fileSpec.lfn == MERGEDHISTFILE:
-                    se_path = sw_prefix + sw_path + prod_name + '/histos'
+                    se_path = sw_prefix + mc + sw_path + prod_name + '/histos'
                 if fileSpec.lfn == MERGEDDUMPFILE:
                     se_path = sw_prefix + sw_path + prod_name + '/mergedDump/slot' + prodSlt
                 
@@ -245,4 +258,10 @@ class cpCompasStagerHPC(BaseStager):
         d = b[:c]
         MCGENFILEOUT = d[d.find('=') + 1:]
         
-        return sw_prefix, sw_path, prod_name, prodSlt, TMPMDSTFILE, TMPHISTFILE, EVTDUMPFILE, MERGEDMDSTFILE, MERGEDHISTFILE, MERGEDDUMPFILE, PRODSOFT, MCGENFILEOUT
+        a = jobPars.find('TASK_TYPE')
+        b = jobPars[a:]
+        c = b.find(';')
+        d = b[:c]
+        TASK_TYPE = d[d.find('=') + 1:]
+        
+        return sw_prefix, sw_path, prod_name, prodSlt, TMPMDSTFILE, TMPHISTFILE, EVTDUMPFILE, MERGEDMDSTFILE, MERGEDHISTFILE, MERGEDDUMPFILE, PRODSOFT, MCGENFILEOUT, TASK_TYPE
