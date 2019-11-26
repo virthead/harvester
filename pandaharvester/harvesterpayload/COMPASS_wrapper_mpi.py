@@ -425,13 +425,16 @@ def interpretPayloadStds(job, payload_stdout_file, payload_stderr_file):
     lost_conn_to_mysql = isSomethingInStd(what="Lost connection to MySQL server", where=payload_stderr_file)
     can_not_open_file = isSomethingInStd(what="DaqEventsManager::NextDataSource(): Can not open file", where=payload_stderr_file)
     zero_events = isSomethingInStd(what="^0 events had been written to miniDST.", where=payload_stdout_file)
+    error_reading_bytes = isSomethingInStd(what="Error in <TFile::ReadBuffer>: error reading all requested bytes from file", where=payload_stderr_file)
     
     failed = False
     is_no_end_of_job = False
     if not is_end_of_job:
         failed = True
         is_no_end_of_job = True
-    if a_fatal_error_appeared or core_dumped or no_events or abnormal_job_termination or aborted or cannot_allocate or empty_string or cant_connect_to_cdb or read_calib_bad_line or killed or exiting_with_code3 or error_loading_lib_posix or lost_conn_to_mysql or can_not_open_file or zero_events:
+    if a_fatal_error_appeared or core_dumped or no_events or abnormal_job_termination or aborted or cannot_allocate or \
+        empty_string or cant_connect_to_cdb or read_calib_bad_line or killed or exiting_with_code3 or error_loading_lib_posix or \
+        lost_conn_to_mysql or can_not_open_file or zero_events or error_reading_bytes:
         failed = True
     
     # handle non-zero failed job return code but do not set pilot error codes to all payload errors
@@ -485,6 +488,9 @@ def interpretPayloadStds(job, payload_stdout_file, payload_stderr_file):
         elif zero_events:
             work_attributes["pilotErrorDiag"] = "0 events had been written to miniDST."
             work_attributes["pilotErrorCode"] = error.ERR_ZERO_EVENTS
+        elif error_reading_bytes:
+            work_attributes["pilotErrorDiag"] = "Error in <TFile::ReadBuffer>: error reading all requested bytes from file"
+            work_attributes["pilotErrorCode"] = error.ERR_READING_BYTES
         elif exiting_with_code3:
             work_attributes["pilotErrorDiag"] = "CORAL exiting with return code -3"
             work_attributes["pilotErrorCode"] = error.ERR_EXITED_WITH_CODE3
