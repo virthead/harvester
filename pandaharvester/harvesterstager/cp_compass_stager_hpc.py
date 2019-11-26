@@ -105,7 +105,7 @@ class cpCompasStagerHPC(BaseStager):
                 tmpLog.debug('MCGENFILEOUT: {0}' . format(MCGENFILEOUT))
                 
                 mc = ''
-                if jobspec.script == 'MC reconstruction' or TASK_TYPE == 'MCRECO':
+                if jobspec.transformation == 'MC reconstruction' or TASK_TYPE == 'MCRECO':
                     mc = '/mc/'
 
                 # prod
@@ -117,7 +117,7 @@ class cpCompasStagerHPC(BaseStager):
                     se_path = sw_prefix + mc + sw_path + prod_name + '/evtdump/slot' + prodSlt
                     filename = EVTDUMPFILE
                 
-                if jobspec.script == 'MC generation':
+                if jobspec.transformation == 'MC generation':
                     if filename == "payload_stdout.out.gz":
                         se_path = sw_prefix + '/mc/' + sw_path + PRODSOFT + '/logFiles'
                         filename = prod_name + '.' + MCGENFILEOUT.replace('.tgeant', '.stdout.gz')
