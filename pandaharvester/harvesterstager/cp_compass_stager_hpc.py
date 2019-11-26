@@ -249,7 +249,7 @@ class cpCompasStagerHPC(BaseStager):
 
     # zip output files
     def zip_output(self, jobspec):
-        return self.simple_zip_output(jobspec, tmpLog)
+        return True
 
     # asynchronous zip output
     def async_zip_output(self, jobspec):
