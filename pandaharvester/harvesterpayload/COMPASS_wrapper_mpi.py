@@ -630,6 +630,8 @@ def main():
             sleep_time = 60 + random.randint(20, 100)
             logger.info("Rank {0} is going to sleep {1} seconds to allow MySQL db to start" . format(rank, sleep_time))
             time.sleep(sleep_time)
+    else:
+        time.sleep(60)
     
     coral_cdbserver_comm = "export CDBSERVER=0.0.0.0;"
     
