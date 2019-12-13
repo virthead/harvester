@@ -676,6 +676,8 @@ def main():
     logger.debug("Job report start time: {0}" . format(job.startTime))
     logger.debug("Job report end time: {0}" . format(job.endTime))
     
+    time.sleep(60)
+    
     # Fill in payload attributes
     payload_report = {}
     payload_report = interpretPayloadStds(job, payload_stdout_file, payload_stderr_file)
