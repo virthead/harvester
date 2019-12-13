@@ -14,6 +14,7 @@ from glob import glob
 import tarfile
 import re
 import collections
+import argparse
 
 from jobdescription import JobDescription
 from PilotErrors import PilotErrors             # Error codes
@@ -34,6 +35,10 @@ error_h.setLevel(logging.ERROR)
 logger.addHandler(error_h)
 logger.addHandler(debug_h)
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-p', '--pandaids', required=True)
+parser.add_argument('-d', '--db', required=True, choices=['no', 'yes'])
+args = parser.parse_args()
 
 def grep(patterns, file_name):
     """ Search for the patterns in the given list in a file """
@@ -550,10 +555,7 @@ def main():
     work_report['node'] = hostname
     
     # Get a file name with job descriptions
-    if len(sys.argv) > 1:
-        input_file = sys.argv[1]
-    else:
-        input_file = 'worker_pandaids.json'
+    input_file = args.pandaids
     try:
         in_file = open(input_file)
         panda_ids = json.load(in_file)
@@ -599,33 +601,33 @@ def main():
 
     job_working_dir = os.getcwd()
     
-    if rank % 48 == 0:
-        logger.info("Rank {0} is going to start MySQL db" . format(rank))
-        logger.info("Preparing environment")
-        dbsetup_comm_arr = ['cp /home1/06618/apetr/harvester/etc/standalone-database.sh .',
-                            'sh standalone-database.sh &>dbsetup.log &'
-                        ]
-        dbsetup_comm = "\n" . join(dbsetup_comm_arr)
-        p = subprocess.Popen(dbsetup_comm, shell=True)
-        time.sleep(30)
-        
-        logger.info("Going to check MySQL server status")
-        output = subprocess.Popen("ps -C mysqld -o pid=", stdout=subprocess.PIPE, shell=True).communicate()[0]
-        logger.info("MySQL server pid: {0}" . format(output.rstrip()))
-        if len(output) > 0:
-            logger.info("MySQL database is running")
+    if args.db == 'yes':
+        if rank % 48 == 0:
+            logger.info("Rank {0} is going to start MySQL db" . format(rank))
+            logger.info("Preparing environment")
+            dbsetup_comm_arr = ['cp /home1/06618/apetr/harvester/etc/standalone-database.sh .',
+                                'sh standalone-database.sh &>dbsetup.log &'
+                            ]
+            dbsetup_comm = "\n" . join(dbsetup_comm_arr)
+            p = subprocess.Popen(dbsetup_comm, shell=True)
+            time.sleep(30)
             
-            output = subprocess.Popen("echo $HOSTNAME", stdout=subprocess.PIPE, shell=True).communicate()[0]
-            logger.info("MySQL database is running on {0}" . format(output.rstrip()))
+            logger.info("Going to check MySQL server status")
+            output = subprocess.Popen("ps -C mysqld -o pid=", stdout=subprocess.PIPE, shell=True).communicate()[0]
+            logger.info("MySQL server pid: {0}" . format(output.rstrip()))
+            if len(output) > 0:
+                logger.info("MySQL database is running")
+                
+                output = subprocess.Popen("echo $HOSTNAME", stdout=subprocess.PIPE, shell=True).communicate()[0]
+                logger.info("MySQL database is running on {0}" . format(output.rstrip()))
+            else:
+                logger.info("MySQL database is not running, exiting")
         else:
-            logger.info("MySQL database is not running, exiting")
-    else:
-        sleep_time = 60 + random.randint(20, 100)
-        logger.info("Rank {0} is going to sleep {1} seconds to allow MySQL db to start" . format(rank, sleep_time))
-        time.sleep(sleep_time)
+            sleep_time = 60 + random.randint(20, 100)
+            logger.info("Rank {0} is going to sleep {1} seconds to allow MySQL db to start" . format(rank, sleep_time))
+            time.sleep(sleep_time)
     
-    mysql_host = "0.0.0.0"
-    coral_cdbserver_comm = "export CDBSERVER={0};" . format(mysql_host)
+    coral_cdbserver_comm = "export CDBSERVER=0.0.0.0;"
     
     my_command = " " . join([job_dict['transformation'], job_dict['jobPars']])
     my_command = my_command.strip()
