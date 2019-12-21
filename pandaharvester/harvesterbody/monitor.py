@@ -640,7 +640,8 @@ class Monitor(AgentBase):
                         self.dbProxy.kill_worker(workSpec.workerID)
                         retMap[workerID]['newStatus'] = WorkSpec.ST_finished
                         retMap[workerID]['diagMessage'] = diagMessage
-                        return True, retMap
+#                        return True, retMap
+                        continue
                     # stuck queuing for too long
                     if workSpec.status == WorkSpec.ST_submitted \
                         and timeNow > workSpec.submitTime + datetime.timedelta(seconds=workerQueueTimeLimit):
