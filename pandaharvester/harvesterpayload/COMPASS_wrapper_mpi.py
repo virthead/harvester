@@ -611,7 +611,7 @@ def main():
                         ]
         dbsetup_comm = "\n" . join(dbsetup_comm_arr)
         p = subprocess.Popen(dbsetup_comm, shell=True)
-        time.sleep(30)
+        time.sleep(60)
         
         logger.info("Going to check MySQL server status")
         output = subprocess.Popen("ps -C mysqld -o pid=", stdout=subprocess.PIPE, shell=True).communicate()[0]
