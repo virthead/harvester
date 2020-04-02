@@ -625,7 +625,6 @@ def main():
             logger.info("MySQL database is not running, exiting")
     else:
         sleep_time = 120 + random.randint(20, 100)
-        
         logger.info("Rank {0} is going to sleep {1} seconds to allow MySQL db to start" . format(rank, sleep_time))
         time.sleep(sleep_time)
     
