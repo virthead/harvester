@@ -606,8 +606,10 @@ def main():
     if rank % 56 == 0:
         logger.info("Rank {0} is going to start MySQL db" . format(rank))
         logger.info("Preparing environment")
-        dbsetup_comm_arr = ['cp /home1/06618/apetr/harvester/etc/standalone-database.sh .',
-                            'sh standalone-database.sh &>dbsetup.log &'
+        dbsetup_comm_arr = ['cp /scratch1/06431/rlongo/PanDA/etc/standalone-database.sh .',
+                            'sh standalone-database.sh &>dbsetup.log &',
+                            'cp /scratch1/06431/rlongo/PanDA/etc/broadcast.sh .',
+                            'sh broadcast.sh 2>&1'
                         ]
         dbsetup_comm = "\n" . join(dbsetup_comm_arr)
         p = subprocess.Popen(dbsetup_comm, shell=True)
