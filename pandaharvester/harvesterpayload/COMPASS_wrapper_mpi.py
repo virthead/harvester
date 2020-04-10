@@ -609,7 +609,6 @@ def main():
         dbsetup_comm_arr = [
                             'echo $(which coral.exe)',
                             'ldd $(which coral.exe)  | grep libRint.so',
-                            'source /scratch1/06431/rlongo/prod-sw/setup_panda.sh',
                             'cp /scratch1/06431/rlongo/PanDA/etc/standalone-database.sh .',
                             'sh standalone-database.sh &>dbsetup.log &'
                         ]
