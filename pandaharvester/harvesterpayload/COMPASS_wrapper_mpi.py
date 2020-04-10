@@ -606,11 +606,12 @@ def main():
     if rank % 56 == 0:
         logger.info("Rank {0} is going to start MySQL db" . format(rank))
         logger.info("Preparing environment")
-        dbsetup_comm_arr = ['source /scratch1/06431/rlongo/prod-sw/setup_panda.sh',
-                            'cp /scratch1/06431/rlongo/PanDA/etc/standalone-database.sh .',
-                            'sh standalone-database.sh &>dbsetup.log &',
+        dbsetup_comm_arr = [
                             'echo $(which coral.exe)',
-                            'ldd $(which coral.exe)  | grep libRint.so'
+                            'ldd $(which coral.exe)  | grep libRint.so',
+                            'source /scratch1/06431/rlongo/prod-sw/setup_panda.sh',
+                            'cp /scratch1/06431/rlongo/PanDA/etc/standalone-database.sh .',
+                            'sh standalone-database.sh &>dbsetup.log &'
                         ]
         dbsetup_comm = "\n" . join(dbsetup_comm_arr)
         p = subprocess.Popen(dbsetup_comm, shell=True)
