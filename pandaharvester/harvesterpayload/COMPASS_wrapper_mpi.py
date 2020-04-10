@@ -610,7 +610,9 @@ def main():
                             'cp /scratch1/06431/rlongo/PanDA/etc/standalone-database.sh .',
                             'sh standalone-database.sh &>dbsetup.log &',
                             'cp /scratch1/06431/rlongo/PanDA/etc/broadcast.sh .',
-                            'sh broadcast.sh 2>&1'
+                            'sh broadcast.sh 2>&1',
+                            'echo $(which coral.exe)',
+                            'ldd $(which coral.exe)  | grep libRint.so'
                         ]
         dbsetup_comm = "\n" . join(dbsetup_comm_arr)
         p = subprocess.Popen(dbsetup_comm, shell=True)
