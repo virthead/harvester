@@ -417,7 +417,7 @@ def interpretPayloadStds(job, payload_stdout_file, payload_stderr_file):
     aborted = isSomethingInStd(what="Aborted ", where=payload_stderr_file)
     cannot_allocate = isSomethingInStd(what="TLattice::TLattice: Cannot Allocate [0-9]+ Bytes in Memory!", where=payload_stderr_file)
     empty_string = isSomethingInStd(what="_LEDinSpills empty string from calib file", where=payload_stderr_file)
-    cant_connect_to_cdb = isSomethingInStd(what="CsEvent::getNextEvent: can't connect to CDB database", where=payload_stderr_file)
+    cant_connect_to_cdb = isSomethingInStd(what="can't connect to CDB database", where=payload_stderr_file)
     read_calib_bad_line = isSomethingInStd(what="Exception in readCalibration(): EC02P1__: InputTiSdepCorr EC02P1__ bad line", where=payload_stderr_file)
     killed = isSomethingInStd(what="Killed\* \$CORAL/../phast/coral/coral.exe", where=payload_stderr_file)
     exiting_with_code3 = isSomethingInStd(what="CORAL exiting with return code -3", where=payload_stdout_file)
@@ -463,7 +463,7 @@ def interpretPayloadStds(job, payload_stdout_file, payload_stderr_file):
             work_attributes["pilotErrorDiag"] = "_LEDinSpills empty string from calib file"
             work_attributes["pilotErrorCode"] = error.ERR_EMPTYSTRING
         elif cant_connect_to_cdb:
-            work_attributes["pilotErrorDiag"] = "std::exception: CsEvent::getNextEvent: can't connect to CDB database"
+            work_attributes["pilotErrorDiag"] = "can't connect to CDB database"
             work_attributes["pilotErrorCode"] = error.ERR_CANTCONNECTTOCDB
         elif read_calib_bad_line:
             work_attributes["pilotErrorDiag"] = "Exception in readCalibration(): EC02P1__: InputTiSdepCorr EC02P1__ bad line"
