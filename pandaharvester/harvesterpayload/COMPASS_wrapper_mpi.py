@@ -532,6 +532,39 @@ def copy_jobreport(job_working_dir, worker_communication_point, payload_report_f
         work_report["exitMsg"] = str(sys.exc_info()[1])
         main_exit(1103, work_report, workerattributesfile)
 
+def frontera_prepare_wd(scratch_path, trans_job_workdir, worker_communication_point, job, workerAttributesFile):
+    # Copy files to scratch (RAMdisk, ssd, etc) to cope high IO. Move execution to RAM disk
+
+    tmp_path = 'tmp/'
+    copy_start = time.time()
+    if os.path.exists(scratch_path):
+        try:
+            if not os.path.exists(scratch_path + tmp_path):
+                os.makedirs(scratch_path + tmp_path)
+            if not os.path.exists(trans_job_workdir):
+                os.makedirs(trans_job_workdir)
+        except IOError as e:
+            copy_time = time.time() - copy_start
+            logger.info('Special Frontera setup failed after: {0}' . format(copy_time))
+            logger.error("Copy to scratch failed, execution terminated':  \n %s " % (sys.exc_info()[1]))
+            work_report = dict()
+            work_report["jobStatus"] = "failed"
+            work_report["pilotErrorCode"] = 1103  # Should be changed to Pilot2 errors
+            work_report["exitMsg"] = str(sys.exc_info()[1])
+            main_exit(1103, work_report, workerAttributesFile)
+        except:
+            pass
+    else:
+        logger.info('Scratch directory (%s) does not exist' % scratch_path)
+        return worker_communication_point
+
+    os.chdir(trans_job_workdir)
+    logger.debug("Current directory: {0}" . format(os.getcwd()))
+    copy_time = time.time() - copy_start
+    logger.info('Special Titan setup took: {0}' . format(copy_time))
+
+    return trans_job_workdir
+
 def main():
     workerAttributesFile = "worker_attributes.json"
     StageOutnFile = "event_status.dump.json"
@@ -544,8 +577,14 @@ def main():
     hostname = gethostname()
     logger.info("Script started at {0} on {1}" . format(start_g_str, hostname))
     
+    starting_point = os.getcwd()
+    scratch_path = '/tmp/'
+    scratch_path = os.path.join(scratch_path, str(pwd.getpwuid( os.getuid() ).pw_uid))
+    logger.info('Scratch path: {0}' . format(scratch_path))
+    
+    
     my_pid = str(os.getpid())
-    logger.info('My pid is {0}' . format(my_pid))
+#    logger.info('My pid is {0}' . format(my_pid))
     
     work_report = {}
     work_report["jobStatus"] = "starting"
@@ -583,6 +622,7 @@ def main():
 
     work_report['workdir'] = worker_communication_point
     workerAttributesFile = os.path.join(worker_communication_point, workerAttributesFile)
+    trans_job_workdir = os.path.join(scratch_path, str(job_id))
     
     try:
         job_file = open("HPCJobs.json")
@@ -601,7 +641,8 @@ def main():
     job.startTime = ""
     job.endTime = ""
 
-    job_working_dir = os.getcwd()
+#    job_working_dir = os.getcwd()
+    job_working_dir = frontera_prepare_wd(scratch_path, trans_job_workdir, worker_communication_point, job, workerAttributesFile)
     
     if rank % 56 == 0:
         logger.info("Rank {0} is going to start MySQL db" . format(rank))
@@ -682,11 +723,11 @@ def main():
     payload_report = interpretPayloadStds(job, payload_stdout_file, payload_stderr_file)
     work_report.update(payload_report)
     
-    dst_file = os.path.join(worker_communication_point, payload_report_file)    
-    with open(dst_file, 'w') as job_report_outfile:
-        json.dump(work_report, job_report_outfile)
+#    dst_file = os.path.join(worker_communication_point, payload_report_file)    
+#    with open(dst_file, 'w') as job_report_outfile:
+#        json.dump(work_report, job_report_outfile)
     
-#    copy_jobreport(job_working_dir, worker_communication_point, payload_report_file, workerAttributesFile)
+    copy_jobreport(job_working_dir, worker_communication_point, payload_report_file, workerAttributesFile)
     
     # log file not produced (yet)
     protectedfiles = job.output_files.keys()
@@ -709,6 +750,17 @@ def main():
         work_report['pilotErrorCode'] = 1164  # Let's take this as closed one
         work_report['jobStatus'] = job.state
         main_exit(0, work_report, workerAttributesFile)
+    
+    # Copy of output to shared FS for stageout
+    if not job_working_dir == worker_communication_point:
+        cp_start = time.time()
+        for outfile in job.output_files.keys():
+            if os.path.exists(outfile):
+                shutil.copyfile(os.path.join(job_working_dir, outfile),
+                                os.path.join(worker_communication_point, outfile))
+        os.chdir(worker_communication_point)
+        cp_time = time.time() - cp_start
+        logger.info("Copy of outputs took: {0} sec.".format(cp_time))
     
     logger.info("Declare stage-out")
     out_file_report = {}
