@@ -150,7 +150,7 @@ class cpCompasStagerHPC(BaseStager):
             
             tmpLog.debug('Copy {0} to {1}' . format(fileSpec.path, dst_gpfn))
             shutil.copyfile(fileSpec.path, dst_gpfn)
-            time.sleep(5)
+            time.sleep(1)
             
             if os.path.exists(dst_gpfn):
                 fileSpec.status = 'finished'
