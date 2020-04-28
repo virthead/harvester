@@ -728,9 +728,9 @@ def main():
     payload_report = interpretPayloadStds(job, payload_stdout_file, payload_stderr_file)
     work_report.update(payload_report)
     
-#    dst_file = os.path.join(worker_communication_point, payload_report_file)    
-#    with open(dst_file, 'w') as job_report_outfile:
-#        json.dump(work_report, job_report_outfile)
+    dst_file = os.path.join(job_working_dir, payload_report_file)    
+    with open(dst_file, 'w') as job_report_outfile:
+        json.dump(work_report, job_report_outfile)
     
     copy_jobreport(job_working_dir, worker_communication_point, payload_report_file, workerAttributesFile)
     
