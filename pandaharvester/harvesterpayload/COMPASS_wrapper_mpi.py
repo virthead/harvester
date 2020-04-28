@@ -534,15 +534,11 @@ def copy_jobreport(job_working_dir, worker_communication_point, payload_report_f
         main_exit(1103, work_report, workerattributesfile)
 
 def frontera_prepare_wd(scratch_path, trans_job_workdir, worker_communication_point, job, workerAttributesFile):
-    # Copy files to scratch (RAMdisk, ssd, etc) to cope high IO. Move execution to RAM disk
+    # Copy files to tmp to cope high IO. Move execution to RAM disk
 
-    tmp_path = 'tmp/'
     copy_start = time.time()
     if os.path.exists(scratch_path):
         try:
-            if not os.path.exists(scratch_path + tmp_path):
-                logger.info('Creating {0}' . format(scratch_path + tmp_path))
-                os.makedirs(scratch_path + tmp_path)
             if not os.path.exists(trans_job_workdir):
                 logger.info('Creating {0}' . format(trans_job_workdir))
                 os.makedirs(trans_job_workdir)
@@ -646,6 +642,11 @@ def main():
     job.endTime = ""
 
 #    job_working_dir = os.getcwd()
+    if rank % 56 == 0:
+        sleep_time = 2 + random.randint(10, 30)
+        logger.info("Rank {0} is going to sleep {1} seconds to avoid overloading of the FS while creating the working dir" . format(rank, sleep_time))
+        time.sleep(sleep_time)
+    
     job_working_dir = frontera_prepare_wd(scratch_path, trans_job_workdir, worker_communication_point, job, workerAttributesFile)
     
     if rank % 56 == 0:
