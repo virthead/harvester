@@ -541,9 +541,12 @@ def frontera_prepare_wd(scratch_path, trans_job_workdir, worker_communication_po
     if os.path.exists(scratch_path):
         try:
             if not os.path.exists(scratch_path + tmp_path):
+                logger.info('Creating {0}' . format(scratch_path + tmp_path))
                 os.makedirs(scratch_path + tmp_path)
             if not os.path.exists(trans_job_workdir):
+                logger.info('Creating {0}' . format(trans_job_workdir))
                 os.makedirs(trans_job_workdir)
+            time.sleep(2)
         except IOError as e:
             copy_time = time.time() - copy_start
             logger.info('Special Frontera setup failed after: {0}' . format(copy_time))
@@ -562,7 +565,7 @@ def frontera_prepare_wd(scratch_path, trans_job_workdir, worker_communication_po
     os.chdir(trans_job_workdir)
     logger.debug("Current directory: {0}" . format(os.getcwd()))
     copy_time = time.time() - copy_start
-    logger.info('Special Titan setup took: {0}' . format(copy_time))
+    logger.info('Special Frontera setup took: {0}' . format(copy_time))
 
     return trans_job_workdir
 
@@ -581,7 +584,7 @@ def main():
     starting_point = os.getcwd()
     scratch_path = '/tmp/'
 #    scratch_path = os.path.join(scratch_path, str(pwd.getpwuid( os.getuid() ).pw_uid))
-    logger.info('Scratch path: {0}' . format(scratch_path))
+#    logger.info('Scratch path: {0}' . format(scratch_path))
     
     
     my_pid = str(os.getpid())
