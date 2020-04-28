@@ -580,7 +580,7 @@ def main():
     
     starting_point = os.getcwd()
     scratch_path = '/tmp/'
-    scratch_path = os.path.join(scratch_path, str(pwd.getpwuid( os.getuid() ).pw_uid))
+#    scratch_path = os.path.join(scratch_path, str(pwd.getpwuid( os.getuid() ).pw_uid))
     logger.info('Scratch path: {0}' . format(scratch_path))
     
     
@@ -607,7 +607,7 @@ def main():
         logger.critical("Exit from rank")
         main_exit(errno)
 
-    logger.debug("Collected list of jobs {0}" . format(panda_ids))
+#    logger.debug("Collected list of jobs {0}" . format(panda_ids))
     # PandaID of the job for the command
     try:
         job_id = panda_ids[rank]
