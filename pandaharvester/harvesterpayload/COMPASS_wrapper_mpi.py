@@ -642,7 +642,7 @@ def main():
     job.endTime = ""
 
 #    job_working_dir = os.getcwd()
-    if rank % 56 == 0:
+    if rank % 56 != 0:
         sleep_time = 2 + random.randint(10, 30)
         logger.info("Rank {0} is going to sleep {1} seconds to avoid overloading of the FS while creating the working dir" . format(rank, sleep_time))
         time.sleep(sleep_time)
