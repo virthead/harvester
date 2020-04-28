@@ -3,6 +3,7 @@
 import sys
 import os
 import pwd
+import shutil
 import time
 import json
 from socket import gethostname
@@ -761,8 +762,8 @@ def main():
         cp_start = time.time()
         for outfile in job.output_files.keys():
             if os.path.exists(outfile):
-                shutil.copyfile(os.path.join(job_working_dir, outfile),
-                                os.path.join(worker_communication_point, outfile))
+                shutil.copyfile(os.path.join(job_working_dir, outfile), os.path.join(worker_communication_point, outfile))
+            time.sleep(1)
         os.chdir(worker_communication_point)
         cp_time = time.time() - cp_start
         logger.info("Copy of outputs took: {0} sec.".format(cp_time))
