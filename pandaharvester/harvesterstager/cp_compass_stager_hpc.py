@@ -6,7 +6,6 @@ from pandaharvester.harvestercore.db_proxy_pool import DBProxyPool as DBProxy
 import uuid
 import shutil
 import os
-import time
 
 # logger
 baseLogger = core_utils.setup_logger('cp_compass_stager_hpc')
@@ -150,8 +149,6 @@ class cpCompasStagerHPC(BaseStager):
             
             tmpLog.debug('Copy {0} to {1}' . format(fileSpec.path, dst_gpfn))
             shutil.copyfile(fileSpec.path, dst_gpfn)
-            time.sleep(1)
-            
             if os.path.exists(dst_gpfn):
                 fileSpec.status = 'finished'
             else:
