@@ -643,40 +643,11 @@ def main():
     job.endTime = ""
 
 #    job_working_dir = os.getcwd()
-    if rank % 56 != 0:
-        sleep_time = 2 + random.randint(10, 30)
-        logger.info("Rank {0} is going to sleep {1} seconds to avoid overloading of the FS while creating the working dir" . format(rank, sleep_time))
-        time.sleep(sleep_time)
+    sleep_time = 0 + random.randint(1, 30)
+    logger.info("Rank {0} is going to sleep {1} seconds to avoid overloading of the FS while creating the working dir" . format(rank, sleep_time))
+    time.sleep(sleep_time)
     
     job_working_dir = frontera_prepare_wd(scratch_path, trans_job_workdir, worker_communication_point, job, workerAttributesFile)
-    
-    if rank % 56 == 0:
-        logger.info("Rank {0} is going to start MySQL db" . format(rank))
-        logger.info("Preparing environment")
-        dbsetup_comm_arr = [
-                            'echo $(which coral.exe)',
-                            'ldd $(which coral.exe)  | grep libRint.so',
-                            'cp /scratch1/06431/rlongo/PanDA/etc/standalone-database.sh .',
-                            'sh standalone-database.sh &>dbsetup.log &'
-                        ]
-        dbsetup_comm = "\n" . join(dbsetup_comm_arr)
-        p = subprocess.Popen(dbsetup_comm, shell=True)
-        time.sleep(60)
-        
-        logger.info("Going to check MySQL server status")
-        output = subprocess.Popen("ps -C mysqld -o pid=", stdout=subprocess.PIPE, shell=True).communicate()[0]
-        logger.info("MySQL server pid: {0}" . format(output.rstrip()))
-        if len(output) > 0:
-            logger.info("MySQL database is running")
-            
-            output = subprocess.Popen("echo $HOSTNAME", stdout=subprocess.PIPE, shell=True).communicate()[0]
-            logger.info("MySQL database is running on {0}" . format(output.rstrip()))
-        else:
-            logger.info("MySQL database is not running, exiting")
-    else:
-        sleep_time = 240 + random.randint(20, 100)
-        logger.info("Rank {0} is going to sleep {1} seconds to allow MySQL db to start" . format(rank, sleep_time))
-        time.sleep(sleep_time)
     
     mysql_host = "0.0.0.0"
     coral_cdbserver_comm = "export CDBSERVER={0};" . format(mysql_host)
