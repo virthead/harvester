@@ -659,7 +659,7 @@ def main():
                         ]
         dbsetup_comm = "\n" . join(dbsetup_comm_arr)
         p = subprocess.Popen(dbsetup_comm, shell=True)
-        time.sleep(360)
+        time.sleep(600)
         
         logger.info("Going to check MySQL server status")
         output = subprocess.Popen("ps -C mysqld -o pid=", stdout=subprocess.PIPE, shell=True).communicate()[0]
@@ -672,7 +672,7 @@ def main():
         else:
             logger.info("MySQL database is not running, exiting")
     else:
-        sleep_time = 360 + random.randint(20, 100)
+        sleep_time = 600 + random.randint(20, 100)
         logger.info("Rank {0} is going to sleep {1} seconds to allow MySQL db to start" . format(rank, sleep_time))
         time.sleep(sleep_time)
     
