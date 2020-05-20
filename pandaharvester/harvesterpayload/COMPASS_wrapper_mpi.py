@@ -648,6 +648,7 @@ def main():
         logger.info("Rank {0} is going to sleep {1} seconds to avoid overloading of the FS while creating the working dir" . format(rank, sleep_time))
         time.sleep(sleep_time)
     
+    logger.info("Rank {0} job.script: {1}" . format(rank, job.script))
     if job.script.find("merging") == -1:
         job_working_dir = frontera_prepare_wd(scratch_path, trans_job_workdir, worker_communication_point, job, workerAttributesFile)
     
