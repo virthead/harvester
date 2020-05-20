@@ -649,7 +649,7 @@ def main():
         time.sleep(sleep_time)
     
     logger.info("Rank {0} job.script: {1}" . format(rank, job.script))
-    if job.script.find("merging") == -1:
+    if job_dict['transformation'].find('merging') == -1:
         job_working_dir = frontera_prepare_wd(scratch_path, trans_job_workdir, worker_communication_point, job, workerAttributesFile)
     
     if rank % 56 == 0:
