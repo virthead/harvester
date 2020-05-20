@@ -642,13 +642,14 @@ def main():
     job.startTime = ""
     job.endTime = ""
 
-#    job_working_dir = os.getcwd()
+    job_working_dir = os.getcwd()
     if rank % 56 != 0:
         sleep_time = 2 + random.randint(10, 30)
         logger.info("Rank {0} is going to sleep {1} seconds to avoid overloading of the FS while creating the working dir" . format(rank, sleep_time))
         time.sleep(sleep_time)
     
-    job_working_dir = frontera_prepare_wd(scratch_path, trans_job_workdir, worker_communication_point, job, workerAttributesFile)
+    if job.script.find("merging") != -1:
+        job_working_dir = frontera_prepare_wd(scratch_path, trans_job_workdir, worker_communication_point, job, workerAttributesFile)
     
     if rank % 56 == 0:
         logger.info("Rank {0} is going to start MySQL db" . format(rank))
