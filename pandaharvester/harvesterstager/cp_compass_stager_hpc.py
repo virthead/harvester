@@ -106,11 +106,11 @@ class cpCompasStagerHPC(BaseStager):
                            
                 # prod
                 if fileSpec.lfn == TMPMDSTFILE :
-                    se_path = sw_prefix + sw_path + prod_name + '/mDST.chunks'
+                    se_path = sw_prefix + sw_path + PRODSOFT + '/mDST.chunks'
                 if fileSpec.lfn == TMPHISTFILE:
-                    se_path = sw_prefix + sw_path + prod_name + '/TRAFDIC'
+                    se_path = sw_prefix + sw_path + PRODSOFT + '/TRAFDIC'
                 if fileSpec.lfn == "testevtdump.raw":
-                    se_path = sw_prefix + sw_path + prod_name + '/evtdump/slot' + prodSlt
+                    se_path = sw_prefix + sw_path + PRODSOFT + '/evtdump/slot' + prodSlt
                     filename = EVTDUMPFILE
                 if fileSpec.lfn == "payload_stdout.out.gz":
                     se_path = sw_prefix + sw_path + PRODSOFT + '/logFiles'
@@ -121,11 +121,11 @@ class cpCompasStagerHPC(BaseStager):
                                 
                 # merge
                 if fileSpec.lfn == MERGEDMDSTFILE :
-                    se_path = sw_prefix + sw_path + prod_name + '/mDST'
+                    se_path = sw_prefix + sw_path + PRODSOFT + '/mDST'
                 if fileSpec.lfn == MERGEDHISTFILE:
-                    se_path = sw_prefix + sw_path + prod_name + '/histos'
+                    se_path = sw_prefix + sw_path + PRODSOFT + '/histos'
                 if fileSpec.lfn == MERGEDDUMPFILE:
-                    se_path = sw_prefix + sw_path + prod_name + '/mergedDump/slot' + prodSlt
+                    se_path = sw_prefix + sw_path + PRODSOFT + '/mergedDump/slot' + prodSlt
                 
                 # mc generation
                 if fileSpec.lfn == MCGENFILEOUT:
