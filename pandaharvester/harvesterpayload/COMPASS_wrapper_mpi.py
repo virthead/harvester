@@ -656,7 +656,7 @@ def main():
         logger.info("Rank {0} is going to start MySQL db" . format(rank))
         logger.info("Preparing environment")
         dbsetup_comm_arr = [
-                            'cp /scratch1/06431/rlongo/PanDA/etc/standalone-database.sh .',
+                            'cp /scratch3/projects/phy20003/PanDA/sw/standalone-database.sh .',
                             'sh standalone-database.sh &>dbsetup.log &'
                         ]
         dbsetup_comm = "\n" . join(dbsetup_comm_arr)
