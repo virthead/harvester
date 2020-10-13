@@ -679,7 +679,7 @@ def main():
         time.sleep(sleep_time)
     
     mysql_host = "0.0.0.0"
-    coral_cdbserver_comm = "export CDBSERVER={0};" . format(mysql_host)
+    coral_cdbserver_comm = "export MYSQL_UNIX_PORT=/tmp/sw_mysql_859171/mysql.sock;export CDBSERVER={0};" . format(mysql_host)
     
     my_command = " " . join([job_dict['transformation'], job_dict['jobPars']])
     my_command = my_command.strip()
