@@ -928,7 +928,7 @@ class DBProxy(object):
                     nsMap[tmpStatus] = tmpN
                 # get num of queued jobs
                 try:
-                    nQueue = nsMap['starting']
+                    nQueue = nsMap['starting'] + nsMap['running']
                 except Exception:
                     nQueue = 0
                 # dynamic nQueueLimitJob
