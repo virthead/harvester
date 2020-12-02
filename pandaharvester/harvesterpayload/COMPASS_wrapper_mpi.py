@@ -147,6 +147,15 @@ def getNumberOfEvents(payload_stdout):
     if len(matched_lines) > 0:
         N = int(re.match('^Number of events saved to output\s+:\s+(\d+)', matched_lines[-1]).group(1))
 
+        tolog("Processing stdout file of merging, looking for N skipped events: %s" % (payload_stdout))
+        matched_lines1 = grep(["WARNING: (\d+) 'clone' events \(same run/spill/ev.num.\) had been skipped on input"], payload_stdout)
+        if len(matched_lines1) > 0:
+            NS = int(re.match("WARNING: (\d+) 'clone' events \(same run/spill/ev.num.\) had been skipped on input", matched_lines1[-1]).group(1))
+            N = N + NS
+            tolog("%s skipped events were added to the final result" % (NS))
+        else:
+            tolog("N skipped events message was not found")
+
     if len(nEvents_str) == 0:
         nEvents_str = str(N)
     nEventsRead += N
