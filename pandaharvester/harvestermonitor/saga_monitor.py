@@ -86,12 +86,12 @@ class SAGAMonitor(PluginBase):
                                 workSpec.endTime = endtime
                             workSpec.set_status(harvester_job_state)
                             
-                            jsonFilePath = os.path.join(workSpec.get_access_point(), harvester_config.payload_interaction.killWorkerFile)
-                            tmpLog.debug('Going to request kill worker via file {0}.'.format(jsonFilePath))
-                            try:
-                                os.utime(jsonFilePath, None)
-                            except OSError:
-                                open(jsonFilePath, 'a').close()
+#                            jsonFilePath = os.path.join(workSpec.get_access_point(), harvester_config.payload_interaction.killWorkerFile)
+#                            tmpLog.debug('Going to request kill worker via file {0}.'.format(jsonFilePath))
+#                            try:
+#                                os.utime(jsonFilePath, None)
+#                            except OSError:
+#                                open(jsonFilePath, 'a').close()
                                 
                         tmpLog.info('Worker {2} with BatchID={0} finished with exit code {1} and state {3}'.format(
                             workSpec.batchID, worker.exit_code, workSpec.workerID, worker.state))
