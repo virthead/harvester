@@ -117,36 +117,36 @@ class SAGAMonitor(PluginBase):
                                                                                          workSpec.nativeExitCode))
                             # proper processing of jobs for worker will be required, to avoid 'fake' fails
                     
-                    if worker.state == rs.job.RUNNING:
-                        tmpLog.info("Going to check that all jobs of the worker are in the final status.")
-                        dbProxy = DBProxy()
-                        job_spec_list = dbProxy.get_jobs_with_worker_id(workSpec.workerID, None, only_running=False, slim=False)
-                        
-                        allFinal = True
-                        for job_spec in job_spec_list:
-                            if not job_spec.is_final_status():
-                                allFinal = False
-                                tmpLog.info("Not all jobs are in the final status, skip till the next monitoring cycle.")
-                                break
-                        
-                        if allFinal:
-                            tmpLog.info("All jobs are in the final status, going to cancel the worker.")
-                            worker.cancel()
-                            worker.wait()
-                            workSpec.nativeExitCode = 0
-                            cur_time = datetime.utcnow()
-                            workSpec.endTime = cur_time
-                            jsonFilePath = os.path.join(workSpec.get_access_point(), harvester_config.payload_interaction.killWorkerFile)
-                            tmpLog.debug('Going to request kill worker via file {0}.'.format(jsonFilePath))
-                            try:
-                                os.utime(jsonFilePath, None)
-                            except OSError:
-                                open(jsonFilePath, 'a').close()
-                                
-                            workSpec.set_status(workSpec.ST_finished)
-                            harvester_job_state = workSpec.ST_finished
-                            tmpLog.info("Worker state: {0} worker exit code: {1}".format(harvester_job_state,
-                                                                                         workSpec.nativeExitCode))
+#                     if worker.state == rs.job.RUNNING:
+#                         tmpLog.info("Going to check that all jobs of the worker are in the final status.")
+#                         dbProxy = DBProxy()
+#                         job_spec_list = dbProxy.get_jobs_with_worker_id(workSpec.workerID, None, only_running=False, slim=False)
+#                         
+#                         allFinal = True
+#                         for job_spec in job_spec_list:
+#                             if not job_spec.is_final_status():
+#                                 allFinal = False
+#                                 tmpLog.info("Not all jobs are in the final status, skip till the next monitoring cycle.")
+#                                 break
+#                         
+#                         if allFinal:
+#                             tmpLog.info("All jobs are in the final status, going to cancel the worker.")
+#                             worker.cancel()
+#                             worker.wait()
+#                             workSpec.nativeExitCode = 0
+#                             cur_time = datetime.utcnow()
+#                             workSpec.endTime = cur_time
+#                             jsonFilePath = os.path.join(workSpec.get_access_point(), harvester_config.payload_interaction.killWorkerFile)
+#                             tmpLog.debug('Going to request kill worker via file {0}.'.format(jsonFilePath))
+#                             try:
+#                                 os.utime(jsonFilePath, None)
+#                             except OSError:
+#                                 open(jsonFilePath, 'a').close()
+#                                 
+#                             workSpec.set_status(workSpec.ST_finished)
+#                             harvester_job_state = workSpec.ST_finished
+#                             tmpLog.info("Worker state: {0} worker exit code: {1}".format(harvester_job_state,
+#                                                                                          workSpec.nativeExitCode))
                         
                 except rs.SagaException as ex:
                     tmpLog.info('An exception occured during retriving worker information {0}'.format(workSpec.batchID))
